@@ -1,19 +1,33 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Alert, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  Dimensions,
+  View,
+  Alert,
+  ActivityIndicator
+} from "react-native";
 import { RNCamera } from "react-native-camera";
 import CaptureButton from "./captureButton";
+
+const PICTURE_OPTIONS = {
+  quality: 1,
+  fixOrientation: true,
+  forceUpOrientation: true
+};
 
 export default class AddWord extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      identifiedAs: "",
-      loading: false
+      loading: false,
+      image: null,
+      error: null,
+      visionResp: []
     };
   }
 
-  takePicture = async function() {
+  takePicture = async () => {
     if (this.camera) {
       // Pause the camera's preview
       this.camera.pausePreview();
@@ -23,16 +37,47 @@ export default class AddWord extends Component {
         loading: true
       }));
 
-      // set loading to false after 5 seconds
-      await setTimeout(() => {
-        this.setState((previousState, props) => ({
-          loading: false
-        }));
-      }, 1000);
+      try {
+        // Get the base64 version of the image
+        const data = await this.camera.takePictureAsync(PICTURE_OPTIONS);
+        if (!data.uri) {
+          throw "OTHER";
+        }
 
-      // Show an alert with the answer on
-      Alert.alert("You just took a photo");
+        this.setState(
+          {
+            image: data.uri
+          },
+          () => {
+            console.log(data.uri);
+            this.processImage(data.uri, {
+              height: data.height,
+              width: data.width
+            });
+          }
+        );
+      } catch (e) {
+        console.warn(e);
+
+        this.setState({
+          loading: false,
+          image: null,
+          error: "other"
+        });
+      }
+
+      this.setState((previousState, props) => ({
+        loading: false
+      }));
+
+      // Resume the camera's preview
+      this.camera.resumePreview();
     }
+  };
+
+  processImage = async (uri, imageProperties) => {
+    // Show an alert with the answer on
+    Alert.alert("You just took a photo: " + uri);
   };
 
   render() {
@@ -44,6 +89,10 @@ export default class AddWord extends Component {
           }}
           style={styles.preview}
           captureAudio={false}
+          onTextRecognized={d => {
+            console.log("onTextRecognized", d);
+            Alert.alert(d);
+          }}
         >
           <ActivityIndicator
             size="large"
@@ -71,7 +120,9 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     justifyContent: "flex-end",
-    alignItems: "center"
+    alignItems: "center",
+    height: Dimensions.get("window").height,
+    width: Dimensions.get("window").width
   },
   loadingIndicator: {
     flex: 1,

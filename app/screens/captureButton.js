@@ -23,13 +23,10 @@ export default class CaptureButton extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#F5FCFF"
   },
   captureButton: {
-    marginBottom: 30,
     width: 160,
     borderRadius: 10,
     backgroundColor: "white"
