@@ -91,7 +91,7 @@ export default class AddWord extends Component {
           captureAudio={false}
           onTextRecognized={d => {
             console.log("onTextRecognized", d);
-            Alert.alert(d);
+            d.textBlocks.map(e => Alert.alert(e.value));
           }}
         >
           <ActivityIndicator
