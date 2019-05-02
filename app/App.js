@@ -29,7 +29,7 @@ export const Tabs = createBottomTabNavigator({
   Lists: {
     screen: Lists,
     navigationOptions: {
-      tabBarLabel: "Lists",
+      tabBarLabel: "Definitions",
       tabBarIcon: ({ tintColor }) => (
         <Icon name="list" type="entypo" size={28} color={tintColor} />
       )
